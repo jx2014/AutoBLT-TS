@@ -1,5 +1,7 @@
 import ThermalStream as TT
-#import csv
+import os, sys
+
+os.chdir(os.path.dirname(sys.argv[0]))
 
 myTT = TT.ThermalStream(gpib_port=18)
 

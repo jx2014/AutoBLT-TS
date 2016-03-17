@@ -9,7 +9,7 @@ class BLTAuto():
         self.startY = 0
         self.clearX = 0
         self.clearY = 0
-        self.nofTest = 1 
+        self.nofTest = 3
         pass
 
     def Click(self):
@@ -47,28 +47,28 @@ class BLTAuto():
         self.MoveTo(self.clearX, self.clearY)
     
     def GetStartLoc(self):
-        raw_input("Place mouse cursor at center of Start button and press any key to continue...")
+        raw_input("Place mouse cursor at center of Start button and press Enter key to continue...")
         self.startX, self.startY = win32api.GetCursorPos()
         print 'Start button coordinates  (%d, %d)' % (self.startX, self.startY)
             
     def GetClearLoc(self):
-        raw_input("Place mouse cursor at center of Clear button and press any key to continue...")
+        raw_input("Place mouse cursor at center of Clear button and press Enter key to continue...")
         self.clearX, self.clearY = win32api.GetCursorPos()
         print 'Clear button coordinates (%d, %d)' % (self.clearX, self.clearY)
     
     def DetectKey(self, timeout = 10):
-        print 'Press q to stop at anytime'
+        print 'Press q to stop at anytime\n'
         t = time.time()
         while (time.time() - t <= timeout):
             if msvcrt.kbhit():
                 chr = msvcrt.getche()
-                if chr == 'q':
-                    self.__del__()
+                if chr == 'q':                    
+                    exit()
             
     
     def __del__(self):
-        print 'good bye!'
-        
+        print '\ngood bye!'
+                
     
     # send control shift click
     def SendCSC(self):
@@ -89,23 +89,29 @@ class BLTAuto():
         release = 2
         extend_scan_code=1
                 
-        time.sleep(0.1)
+        time.sleep(0.2)
         win32api.keybd_event(lshift, lshift_scan)
         win32api.keybd_event(lcontrol, lcontrol_scan)
-        time.sleep(0.1)
+        time.sleep(0.2)
         #win32api.keybd_event(d, d_scan)
         self.Click()
-        time.sleep(0.1)
+        time.sleep(0.2)
         win32api.keybd_event(lshift, lshift_scan, release)
         win32api.keybd_event(lcontrol, lcontrol_scan, release)
         #win32api.keybd_event(d, d_scan)
         #win32api.keybd_event(p, p_scan)
-
+    
+    def NoOfTests(self):
+        self.nofTest = raw_input("Enter the no of tests you wish to run (enter 999 to test forever until quit): ")
+        self.nofTest = int(self.nofTest)
+        
+    
     def StartTest(self):
+        self.NoOfTests()
         self.GetStartLoc()
         self.GetClearLoc()
         
-        print 'Very good, now activate BLT desktop window and sit back and relax'
+        print 'Very good, now click on on BLT desktop to active it and sit back and relax'
         
         print 'number of tests: %d' % self.nofTest
         
@@ -120,7 +126,9 @@ class BLTAuto():
             self.Click()
             self.DetectKey() 
             self.GoToClear()
-            self.SendCSC()            
+            self.SendCSC()
+            if self.nofTest <= 999:                             
+                self.nofTest -= 1        
             i += 1
             
         

@@ -3,9 +3,12 @@ import binascii
 import winsound
 import time
 import datetime
+import os
+import sys
 
 
 rm = visa.ResourceManager()
+os.chdir(os.path.dirname(sys.argv[0]))
 
 class ThermalStream():
     def __init__(self,gpib_port, dwell=3600, ):
@@ -13,7 +16,7 @@ class ThermalStream():
         print '{0:30}: {1}'.format('GPIB port', gpib)
         self.TT = rm.open_resource(gpib)
         
-        self.soundFile = r'C:\Users\RMA\My Documents\LiClipse Workspace\ThermalStream\sound.wav'
+        self.soundFile = r'sound.wav'
                 
         self.PrintInfo()
     
