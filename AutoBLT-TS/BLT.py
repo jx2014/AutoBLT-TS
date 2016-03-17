@@ -19,7 +19,7 @@ class BLTAuto():
         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,0,0)
         time.sleep(0.2)
         
-    def MoveTo(self,x2,y2, delay=0.001):
+    def MoveTo(self,x2,y2, delay=0.0001):
         timeout = 10 #10seconds for time out
         # get current location
         x, y = win32api.GetCursorPos()    
