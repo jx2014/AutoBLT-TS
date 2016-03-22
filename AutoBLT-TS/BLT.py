@@ -128,7 +128,7 @@ class BLTAuto():
             print 'test #%d' % i
             self.GoToStart()
             self.Click()
-            self.DetectKey() 
+            self.DetectKey(timeout=60) 
             self.GoToClear()
             self.SendCSC()
             if self.nofTest <= 999:                             

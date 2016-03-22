@@ -297,7 +297,7 @@ class ThermalStream():
     
         
     
-    def GoToTemp(self, temp):
+    def GoToTemp(self, temp, manualMode=False):
         mode = None
         if temp > 25:
             mode = 'hot'
@@ -329,38 +329,48 @@ class ThermalStream():
             self.CurrentInfo()
             print self.GetTimeStamp()
             print 'took %s secs to reach setpoint' % (time.time() - ts)
-            self.PlaySound()            
-            raw_input("Press Enter to continue...")
-            self.StopSound() 
+            if manualMode == True:
+                self.PlaySound()            
+                raw_input("Press Enter to continue...")
+                self.StopSound() 
         else:
             print self.GetTempEvent()
     
-    def Dwell(self, duration): #with half time warning
-        ts = time.time()
-        halftime = duration/2
-        while (time.time() - ts) < (halftime):
-            self.CurrentInfoShort()
-            print 'Dwell for %s secs... %s secs left till halftime..\n' % (duration, halftime - int(time.time() - ts))            
-            time.sleep(10)
+    def Dwell(self, duration, manualMode=False): #with half time warning
+        ts = time.time() # time start
+        if manualMode == True:
+            halftime = duration/2
+            while (time.time() - ts) < (halftime):
+                self.CurrentInfoShort()
+                print 'Dwell for %s secs... %s secs left till halftime..\n' % (duration, halftime - int(time.time() - ts))            
+                time.sleep(10)
+            
+                if time.time() - ts > halftime:
+                    self.PlaySound()
+                    print 'halftime has reached'
+                    time.sleep(3)
+                    raw_input("Press Enter to continue...")
+                    self.StopSound()
+            
+            while (time.time() - ts) < duration:
+                self.CurrentInfoShort()
+                print 'Dwell for %s secs... %s secs left..\n' % (duration, duration - int(time.time() - ts))            
+                time.sleep(10)
+            
+                if time.time() - ts > duration:
+                    self.PlaySound()
+                    print 'Dwell for {0}seconds has reached'.format(duration)
+                    time.sleep(3)
+                    raw_input("Press Enter to continue...")
+                    self.StopSound()
         
-            if time.time() - ts > halftime:
-                self.PlaySound()
-                print 'halftime has reached'
-                time.sleep(3)
-                raw_input("Press Enter to continue...")
-                self.StopSound()
-        
-        while (time.time() - ts) < duration:
-            self.CurrentInfoShort()
-            print 'Dwell for %s secs... %s secs left..\n' % (duration, duration - int(time.time() - ts))            
-            time.sleep(10)
-        
-            if time.time() - ts > duration:
-                self.PlaySound()
-                print 'Dwell for {0}seconds has reached'.format(duration)
-                time.sleep(3)
-                raw_input("Press Enter to continue...")
-                self.StopSound()
+        elif manualMode == False:
+            while (time.time() - ts) < (duration):
+                self.CurrentInfoShort()
+                print 'Dwell for %s secs... %s secs remaining\n' % (duration, duration - int(time.time() - ts))            
+                time.sleep(10)            
+                
+                    
         
         
             
