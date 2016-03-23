@@ -21,6 +21,7 @@ class ThermalStream():
         self.soundFile = r'sound.wav'                
         self.PrintInfo()
         self.loggingBegin = 0
+        self.dwell=False
     
     def Logging(self):
         if self.loggingBegin == 0:
@@ -314,7 +315,7 @@ class ThermalStream():
     
         
     
-    def GoToTemp(self, temp, manualMode=False):
+    def GoToTemp(self, temp, timeout=1800, manualMode=False):
         mode = None
         if temp > 25:
             mode = 'hot'
@@ -335,7 +336,7 @@ class ThermalStream():
         self.CurrentInfo()
         
         status = self.GetTempEvent()
-        while self.GetTempEvent() == 'not at temperature':
+        while (self.GetTempEvent()=='not at temperature' and time.time()-ts <= timeout):
             self.CurrentInfoShort()            
             print '{0} {1}'.format(self.GetTempEvent(), '...wait 10 secs...\n')
             time.sleep(10)
@@ -343,19 +344,23 @@ class ThermalStream():
         if self.GetTempEvent() == 'at temperature':            
             self.CurrentInfoShort()
             print 'at temperature'
+            self.dwell=True
             self.CurrentInfo()
             print self.GetTimeStamp()
             print 'took %s secs to reach setpoint' % (time.time() - ts)
             if manualMode == True:
                 self.PlaySound()            
                 raw_input("Press Enter to continue...")
-                self.StopSound() 
+                self.StopSound()                
+        elif self.GetTempEvent == 'not at temperature':
+            print 'unable to reach setpoint within 30mins, go to next setpoint'
+            self.dwell=False            
         else:
             print self.GetTempEvent()
     
     def Dwell(self, duration, manualMode=False): #with half time warning
         ts = time.time() # time start
-        if manualMode == True:
+        if manualMode==True and self.dwell==True:
             halftime = duration/2
             while (time.time() - ts) < (halftime):
                 self.CurrentInfoShort()
@@ -381,7 +386,7 @@ class ThermalStream():
                     raw_input("Press Enter to continue...")
                     self.StopSound()
         
-        elif manualMode == False:
+        elif manualMode==False and self.dwell==True:
             while (time.time() - ts) < (duration):
                 self.CurrentInfoShort()
                 print 'Dwell for %s secs... %s secs remaining\n' % (duration, duration - int(time.time() - ts))            
@@ -392,8 +397,13 @@ class ThermalStream():
         
             
         
-            
-            
+
+def test():
+    a = True
+    b = True
+    while (a==True and b==True):
+        print 'abc'
+        
         
         
         

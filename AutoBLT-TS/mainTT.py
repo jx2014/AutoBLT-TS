@@ -59,15 +59,24 @@ for t, d in temp:
         myTT.GoToTemp(t)
         
         ts = time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(time.time()))
-        row = [ts, 'Dwell Begin', t]
-        print row        
-        logger.writerow(row)        
-        myTT.Dwell(d)
+        if myTT.dwell == True:
+            row = [ts, 'Dwell Begin', t]
+            print row        
+            logger.writerow(row)        
+            myTT.Dwell(d)
         
-        ts = time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(time.time()))
-        row = [ts, 'Dwell Finish', t]
-        print row
-        logger.writerow(row)
+            ts = time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(time.time()))
+            row = [ts, 'Dwell Finish', t]
+            print row
+            logger.writerow(row)
+        elif myTT.dwell == False:
+            row = [ts, 'Skip Dwell', t]
+            print row        
+            logger.writerow(row)
+        else:
+            row = [ts, 'Unknown error', t]
+            print row        
+            logger.writerow(row)
         
         
             
