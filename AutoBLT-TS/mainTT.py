@@ -12,7 +12,11 @@ print myTT.GetRampRate()
 
 dwell = 3600
 
-temp = [[25, 600],
+test_temp =[[30,60],
+            [27,60]
+            ]
+
+temp_qual = [[25, 600],
         #[25, dwell],
         [35, dwell], 
         [45, dwell], 
@@ -34,14 +38,19 @@ temp = [[25, 600],
         ]
         
 
+#temp = test_temp
+temp = temp_qual
+
 myTT.Initialize()   
 
 time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(time.time()))
 
-with open('temp.csv', 'a') as log:     
-    logger = csv.writer(log)
-    logger.writerow(['---test begin---'])
-    for t, d in temp:
+
+for t, d in temp:
+    
+    with open('temp.csv', 'ab') as log:
+        logger = csv.writer(log)
+        logger.writerow(['---test begin---'])
         
         ts = time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(time.time()))        
         row = [ts, 'Set point Begin', t]

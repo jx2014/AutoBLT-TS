@@ -5,23 +5,38 @@ import time
 import datetime
 import os
 import sys
+import csv
 
 
 rm = visa.ResourceManager()
 os.chdir(os.path.dirname(sys.argv[0]))
 
 class ThermalStream():
-    def __init__(self,gpib_port, dwell=3600, ):
+    def __init__(self,gpib_port, dwell=3600, logfile = 'log.csv'):
+        time_stamp = time.strftime("%m-%d-%Y_%H-%M-%S_", time.localtime(time.time()))
+        self.logfile = time_stamp + logfile
         gpib = 'GPIB0::' + str(gpib_port) + '::INSTR'
         print '{0:30}: {1}'.format('GPIB port', gpib)
-        self.TT = rm.open_resource(gpib)
-        
-        self.soundFile = r'sound.wav'
-                
+        self.TT = rm.open_resource(gpib)        
+        self.soundFile = r'sound.wav'                
         self.PrintInfo()
+        self.loggingBegin = 0
     
-    def PrintInfo(self):   
-        
+    def Logging(self):
+        if self.loggingBegin == 0:
+            self.loggingBegin = 1
+            with open(self.logfile,'wb') as file:
+                logger = csv.writer(file)
+                logger.writerow(['Date','Time','SetPoint', 'DUT', 'Air','FlowRate'])
+        elif self.loggingBegin == 1:
+            with open(self.logfile,'ab') as file:
+                logger = csv.writer(file)                
+                ts = time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(time.time()))
+                d,t = ts.split()
+                items = [d, t, self.GetTargetTempSetPoint(),self.GetDutTemp(), self.GetAirTemp(), self.GetFlowRateSCFM()]                
+                logger.writerow(items)
+    
+    def PrintInfo(self):        
         print '{0:30}: {1}'.format('DeviceName', self.WhoAmI())
         print '{0:30}: {1}c'.format('Air to Dut', self.GetAirToDut())
         print '{0:30}: {1}'.format('Auxiliary', self.GetAuxiliary())
@@ -58,13 +73,15 @@ class ThermalStream():
         print '{0:30}: {1}'.format('Current Temperature Event', self.GetTempEvent())
         print '{0:30}: {1}'.format('Air temperature', self.GetAirTemp())
         print '{0:30}: {1}'.format('Dut tempreature', self.GetDutTemp())
+
     
     def CurrentInfoShort(self):
         print 'Setpoint: {0}, Dut: {1}, Air: {2}, Flow: {3}scfm'.format(self.GetTargetTempSetPoint(), 
                                                                     self.GetDutTemp(), 
                                                                     self.GetAirTemp(),
                                                                     self.GetFlowRateSCFM())
-                
+        
+        self.Logging()
     
     def Ask(self, command):
         return self.TT.query(command).rstrip().encode('ascii', 'ignore')
