@@ -2,6 +2,7 @@ import ThermalStream as TT
 import os, sys, time, csv
 
 os.chdir(os.path.dirname(sys.argv[0]))
+#os.chdir(r'C:\Users\quality1\git\AutoBLT-TS\AutoBLT-TS')
 
 myTT = TT.ThermalStream(gpib_port=18)
 
