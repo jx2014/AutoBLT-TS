@@ -4,7 +4,9 @@ import os, sys, time, csv
 os.chdir(os.path.dirname(sys.argv[0]))
 #os.chdir(r'C:\Users\quality1\git\AutoBLT-TS\AutoBLT-TS')
 
-myTT = TT.ThermalStream(gpib_port=18)
+macID = raw_input('Type the last six digit of MacID: ')
+
+myTT = TT.ThermalStream(gpib_port=18, macID)
 
 #myTT.WhoAmI()
 myTT.SetRampRate(9)
@@ -51,9 +53,14 @@ myTT.Initialize()
 time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(time.time()))
 
 
+
+filename = '_'.join([macID,'temp_summary'])
+filename = '.'.join([filename,'csv'])
+
+
 for t, d in temp:
     
-    with open('temp.csv', 'ab') as log:
+    with open(filename, 'ab') as log:
         logger = csv.writer(log)
         logger.writerow(['---test begin---'])
         

@@ -12,9 +12,9 @@ rm = visa.ResourceManager()
 os.chdir(os.path.dirname(sys.argv[0]))
 
 class ThermalStream():
-    def __init__(self,gpib_port, dwell=3600, logfile = 'log.csv'):
+    def __init__(self,gpib_port, dwell=3600, macID='000000', logfile = 'log.csv'):
         time_stamp = time.strftime("%m-%d-%Y_%H-%M-%S_", time.localtime(time.time()))
-        self.logfile = time_stamp + logfile
+        self.logfile = '_'.join([macID, 'Thermalstream',time_stamp, logfile])
         gpib = 'GPIB0::' + str(gpib_port) + '::INSTR'
         print '{0:30}: {1}'.format('GPIB port', gpib)
         self.TT = rm.open_resource(gpib)        
@@ -336,6 +336,8 @@ class ThermalStream():
         self.CurrentInfo()
         
         status = self.GetTempEvent()
+        
+        self.dwell = False
         while (self.GetTempEvent()=='not at temperature' and time.time()-ts <= timeout):
             self.CurrentInfoShort()            
             print '{0} {1}'.format(self.GetTempEvent(), '...wait 10 secs...\n')
@@ -353,13 +355,13 @@ class ThermalStream():
                 raw_input("Press Enter to continue...")
                 self.StopSound()                
         elif self.GetTempEvent == 'not at temperature':
-            print 'unable to reach setpoint within 30mins, go to next setpoint'
-            self.dwell=False            
+            print 'unable to reach setpoint within 30mins, go to next setpoint'                 
         else:
             print self.GetTempEvent()
     
     def Dwell(self, duration, manualMode=False): #with half time warning
         ts = time.time() # time start
+        print 'dwell ?=', self.dwell
         if manualMode==True and self.dwell==True:
             halftime = duration/2
             while (time.time() - ts) < (halftime):
