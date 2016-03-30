@@ -12,9 +12,9 @@ rm = visa.ResourceManager()
 os.chdir(os.path.dirname(sys.argv[0]))
 
 class ThermalStream():
-    def __init__(self,gpib_port, dwell=3600, macID='000000', logfile = 'log.csv'):
+    def __init__(self,gpib_port, dwell=3600, logfile = 'log.csv'):
         time_stamp = time.strftime("%m-%d-%Y_%H-%M-%S_", time.localtime(time.time()))
-        self.logfile = '_'.join([macID, 'Thermalstream',time_stamp, logfile])
+        self.logfile = time_stamp + logfile
         gpib = 'GPIB0::' + str(gpib_port) + '::INSTR'
         print '{0:30}: {1}'.format('GPIB port', gpib)
         self.TT = rm.open_resource(gpib)        
@@ -151,6 +151,15 @@ class ThermalStream():
             return 'On'
         else:
             return 'unknown'
+    
+    def SetFlow(self, flow=1):
+        '''
+            Turn the main nozzle air flow on or off
+            FLOW 1 - On
+            FLOW 0 - Off
+        '''
+        self.Write('FLOW %d' % flow)
+        
     
     def GetFlowRateSCFM(self):
         result = self.Ask('FLWR?')        
@@ -336,8 +345,6 @@ class ThermalStream():
         self.CurrentInfo()
         
         status = self.GetTempEvent()
-        
-        self.dwell = False
         while (self.GetTempEvent()=='not at temperature' and time.time()-ts <= timeout):
             self.CurrentInfoShort()            
             print '{0} {1}'.format(self.GetTempEvent(), '...wait 10 secs...\n')
@@ -355,13 +362,26 @@ class ThermalStream():
                 raw_input("Press Enter to continue...")
                 self.StopSound()                
         elif self.GetTempEvent == 'not at temperature':
-            print 'unable to reach setpoint within 30mins, go to next setpoint'                 
+            print 'unable to reach setpoint within 30mins, go to next setpoint'
+            self.dwell=False
         else:
             print self.GetTempEvent()
+            self.dwell=False
+    
+    def PrintTime(self):
+        ct = time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(time.time()))        
+        return ct
+    
+    def Rest(self, timeout=300):
+        self.SetFlow(0)
+        print self.PrintTime()
+        print 'turn main air flow off to rest for %d secs' % timeout
+        time.sleep(timeout)        
+        print 'turn main air flow back on'
+        self.SetFlow(1)
     
     def Dwell(self, duration, manualMode=False): #with half time warning
         ts = time.time() # time start
-        print 'dwell ?=', self.dwell
         if manualMode==True and self.dwell==True:
             halftime = duration/2
             while (time.time() - ts) < (halftime):

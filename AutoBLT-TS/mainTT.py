@@ -4,9 +4,7 @@ import os, sys, time, csv
 os.chdir(os.path.dirname(sys.argv[0]))
 #os.chdir(r'C:\Users\quality1\git\AutoBLT-TS\AutoBLT-TS')
 
-macID = raw_input('Type the last six digit of MacID: ')
-
-myTT = TT.ThermalStream(gpib_port=18, macID)
+myTT = TT.ThermalStream(gpib_port=18)
 
 #myTT.WhoAmI()
 myTT.SetRampRate(9)
@@ -19,26 +17,26 @@ test_temp =[[30,60],
             [27,60]
             ]
 
-temp_qual = [[25, 600],
-        #[25, dwell],
-        #[35, dwell], 
-        #[45, dwell], 
-        #[55, dwell],
-        #[65, dwell],
-        #[75, dwell],
-        #[85, dwell],
+temp_qual = [#[25, 600],
+        [25, dwell],
+        [35, dwell], 
+        [45, dwell], 
+        [55, dwell],
+        [65, dwell],
+        [75, dwell],
+        [85, dwell],
         #[90, dwell],
-        #[95, dwell],
-        #[100, 1800],
-        #[25, dwell],
+        [95, dwell],
+        [100, 1800],
+        [25, 1800],
         [15, dwell],
         [5, dwell],
         [0, dwell],
         [-5, dwell],
-        [-10, dwell],
+        #[-10, dwell],
         [-15, dwell],
-        [-20, dwell],
-        [-25, dwell],
+        #[-20, dwell],
+        #[-25, dwell],
         [-30, dwell],
         [-35, dwell],
         [25, dwell],
@@ -53,14 +51,9 @@ myTT.Initialize()
 time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(time.time()))
 
 
-
-filename = '_'.join([macID,'temp_summary'])
-filename = '.'.join([filename,'csv'])
-
-
 for t, d in temp:
     
-    with open(filename, 'ab') as log:
+    with open('temp.csv', 'ab') as log:
         logger = csv.writer(log)
         logger.writerow(['---test begin---'])
         
