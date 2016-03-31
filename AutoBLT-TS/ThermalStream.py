@@ -83,10 +83,11 @@ class ThermalStream():
 
     
     def CurrentInfoShort(self):
-        print 'Setpoint: {0}, Dut: {1}, Air: {2}, Flow: {3}scfm'.format(self.GetTargetTempSetPoint(), 
+        print 'Setpoint: {0}, Dut: {1}, Air: {2}, Flow: {3}scfm, ErrorCode: {4}'.format(self.GetTargetTempSetPoint(), 
                                                                     self.GetDutTemp(), 
                                                                     self.GetAirTemp(),
-                                                                    self.GetFlowRateSCFM())
+                                                                    self.GetFlowRateSCFM(),
+                                                                    self.ErrorCode())
         
         self.Logging()
     
