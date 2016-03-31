@@ -93,13 +93,13 @@ class BLTAuto():
         release = 2
         extend_scan_code=1
                 
-        time.sleep(0.2)
+        time.sleep(0.5)
         win32api.keybd_event(lshift, lshift_scan)
         win32api.keybd_event(lcontrol, lcontrol_scan)
-        time.sleep(0.2)
+        time.sleep(0.5)
         #win32api.keybd_event(d, d_scan)
         self.Click()
-        time.sleep(0.2)
+        time.sleep(0.5)
         win32api.keybd_event(lshift, lshift_scan, release)
         win32api.keybd_event(lcontrol, lcontrol_scan, release)
         #win32api.keybd_event(d, d_scan)

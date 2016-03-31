@@ -24,18 +24,21 @@ class ThermalStream():
         self.dwell=False
     
     def Logging(self):
-        if self.loggingBegin == 0:
-            self.loggingBegin = 1
-            with open(self.logfile,'wb') as file:
-                logger = csv.writer(file)
-                logger.writerow(['Date','Time','SetPoint', 'DUT', 'Air','FlowRate'])
-        elif self.loggingBegin == 1:
-            with open(self.logfile,'ab') as file:
-                logger = csv.writer(file)                
-                ts = time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(time.time()))
-                d,t = ts.split()
-                items = [d, t, self.GetTargetTempSetPoint(),self.GetDutTemp(), self.GetAirTemp(), self.GetFlowRateSCFM()]                
-                logger.writerow(items)
+        try:
+            if self.loggingBegin == 0:
+                self.loggingBegin = 1
+                with open(self.logfile,'wb') as file:
+                    logger = csv.writer(file)
+                    logger.writerow(['Date','Time','SetPoint', 'DUT', 'Air','FlowRate', 'ErrorCode'])
+            elif self.loggingBegin == 1:
+                with open(self.logfile,'ab') as file:
+                    logger = csv.writer(file)                
+                    ts = time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(time.time()))
+                    d,t = ts.split()
+                    items = [d, t, self.GetTargetTempSetPoint(),self.GetDutTemp(), self.GetAirTemp(), self.GetFlowRateSCFM(), self.ErrorCode()]                
+                    logger.writerow(items)
+        except:
+            print "Logging Error"
     
     def PrintInfo(self):        
         print '{0:30}: {1}'.format('DeviceName', self.WhoAmI())
@@ -61,7 +64,9 @@ class ThermalStream():
         print '{0:30}: {1}'.format('Dut tempreature', self.GetDutTemp())
         print '{0:30}: {1}'.format('Soak', self.GetSoak())
         print '{0:30}: {1}'.format('Setpoint Window', self.GetSetpointWindow())
-        print '{0:30}: {1}'.format('What is it doing', self.GetWhat())        
+        print '{0:30}: {1}'.format('What is it doing', self.GetWhat())
+        print '{0:30}: {1}'.format('Error Code', self.ErrorCode())
+        
     
     def CurrentInfo(self):
         print '{0:30}: {1}'.format('Thermal head', self.GetThermalHead())
@@ -74,6 +79,7 @@ class ThermalStream():
         print '{0:30}: {1}'.format('Current Temperature Event', self.GetTempEvent())
         print '{0:30}: {1}'.format('Air temperature', self.GetAirTemp())
         print '{0:30}: {1}'.format('Dut tempreature', self.GetDutTemp())
+        print '{0:30}: {1}'.format('Error Code', self.ErrorCode())
 
     
     def CurrentInfoShort(self):
@@ -139,9 +145,59 @@ class ThermalStream():
         else:
             return 'Unknown mode'
     
-    def GetError(self):
+    def GetError(self, eror = 0):
+        '''
+            32768 # bit 15 - reserved
+            16384 # bit 14 - no DUT sensor selected
+            8192 # bit 13 - reserved
+            4096 # bit 12 - BVRAM fault
+            2048 # bit 11 - NVRMA fault
+            1024 # bit 10 - No Line Sense
+            512 # bit 9 - flow sensor hardware error
+            256 # bit 8 - reserved
+            128 # bit 7 - internal error
+            64 # bit 6 - reserved
+            32 # bit 5 - air sensor open
+            16 # bit 4 - low input air pressure
+            8 # bit 3 - low flow
+            4 # bit 2 - reserved
+            2 # bit 1 - air open loop
+            1 # bit 0 - over heat
+        '''
+        if eror == 0:
+            eror = int(self.ErrorCode())
+        
+        errors = [[1,'Over heat'],
+                  [2,'air open loop'],
+                  [4,'reserved'],  
+                  [8,'low flow'],
+                  [16,'low input air pressure'],
+                  [32,'air sensor open'],
+                  [64,'reserved'],
+                  [128,'internal error'],
+                  [256,'reserved'],
+                  [512,'flow sensor hardware error'],
+                  [1024,'No line sense'],
+                  [2048,'NVRAM fault'],
+                  [4096,'BVRAM fault'],
+                  [8192,'reserved'],
+                  [16384,'no DUT sensor selected'],
+                  [32768,'reserved']                  
+                  ]
+        
+        error_list = []
+        
+        for i in errors:
+            if eror & i[0] > 0:
+                print '{0:8}: {1}'.format(i[0], i[1])                
+                error_list.append(i[1])
+        
+        return error_list
+        
+    
+    def ErrorCode(self):
         result = self.Ask('EROR?')
-        return result
+        return int(result)
     
     def GetFlow(self):
         result = self.Ask('FLOW?')        
